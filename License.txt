@@ -1,16 +1,3 @@
-# lazynim
-A port of [Lazy Foo's C++ SDL2](http://lazyfoo.net/tutorials/SDL/) tutorial to Nim ([nim-lang.org](http://nim-lang.org))
-
-##Progress
-We've currently ported the following lessons:
-- [x] Lesson02
-- [x] Lesson03
-- [ ] Lesson04
-
-##TODO
-- Provide linux and Mac OSX support
-
-##License
 This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
