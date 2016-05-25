@@ -5,19 +5,25 @@ var
   ren: RendererPtr
   tex: TexturePtr
   screenSurface: SurfacePtr
-  keyPress: SurfacePtr
+  #keyPress: SurfacePtr
   currentSurface: SurfacePtr
 
 #type
 #  KeyPressSurfaces {.pure.} = enum
 #    keyPressDefault ="", keyPressUp = "", keyPressDown = "", keyPressLeft = "", keyPressRight = "", keyPresTotal = ""
+#var
+#  keyPressDefault: SurfacePtr
+#  keyPressUp: SurfacePtr
+#  keyPressDown: SurfacePtr
+#  keyPressLeft: SurfacePtr
+#  keyPressRight: SurfacePtr
+#  keyPresTotal: SurfacePtr
+
+type
+  keyPressEnum = enum
+    kpDefault, kpUp, kpDown, kpLeft, kpRight, kpTotal
 var
-  keyPressDefault: SurfacePtr
-  keyPressUp: SurfacePtr
-  keyPressDown: SurfacePtr
-  keyPressLeft: SurfacePtr
-  keyPressRight: SurfacePtr
-  keyPresTotal: SurfacePtr
+  keyPress = newSeq[SurfacePtr](ord(kpTotal))
 
 proc initialization(): bool =
   var success: bool = true
@@ -44,28 +50,28 @@ proc loadSurface(path: string): SurfacePtr =
 proc loadMedia(): bool =
   var success: bool = true
 
-  keyPressDefault = loadSurface("press.bmp")
-  if keyPressDefault == nil:
+  keyPress[ord(kpDefault)] = loadSurface("press.bmp")
+  if keyPress[ord(kpDefault)] == nil:
     echo "Failed to load default image!"
     success = false
 
-  keyPressUp = loadSurface("up.bmp")
-  if keyPressUp == nil:
+  keyPress[ord(kpUp)] = loadSurface("up.bmp")
+  if keyPress[ord(kpUp)] == nil:
     echo "Failed to load up image!"
     success = false
 
-  keyPressDown = loadSurface("down.bmp")
-  if keyPressDown == nil:
+  keyPress[ord(kpDown)] = loadSurface("down.bmp")
+  if keyPress[ord(kpDown)] == nil:
     echo "Failed to load down image!"
     success = false
 
-  keyPressLeft = loadSurface("left.bmp")
-  if keyPressLeft == nil:
+  keyPress[ord(kpLeft)] = loadSurface("left.bmp")
+  if keyPress[ord(kpLeft)] == nil:
     echo "Failed to load left image!"
     success = false
 
-  keyPressRight = loadSurface("right.bmp")
-  if keyPressRight == nil:
+  keyPress[ord(kpRight)] = loadSurface("right.bmp")
+  if keyPress[ord(kpRight)] == nil:
     echo "Failed to load right image!"
     success = false
   #keyPress = loadBMP("press.bmp")
@@ -76,17 +82,10 @@ proc loadMedia(): bool =
 
 
 proc close(): bool =
-  freeSurface(keyPressDefault)
-  freeSurface(keyPressUp)
-  freeSurface(keyPressDown)
-  freeSurface(keyPressLeft)
-  freeSurface(keyPressRight)
-  #keyPress = nil
-  keyPressDefault = nil
-  keyPressUp = nil
-  keyPressDown = nil
-  keyPressLeft = nil
-  keyPressRight = nil
+
+  for i, v in keyPress:
+    freeSurface(keyPress[i])
+    keyPress[i] = nil
 
   destroyWindow(win)
   win = nil
@@ -103,7 +102,7 @@ else :
   else:
     var quit: bool = false
     var event = sdl2.defaultEvent
-    currentSurface = keyPressDefault
+    currentSurface = keyPress[ord(kpDefault)]
     while (quit == false):
       while (pollEvent(event)):
         case event.kind
@@ -111,11 +110,18 @@ else :
           quit = true
         of sdl2.EventType.KeyDown:
           case event.key.keysym.sym
-          of SDLK_UP:
-            echo "Left"
+          #You can find the number that represents the keycode here: https://wiki.libsdl.org/SDLKeycodeLookup
+          of 1073741906:
+            currentSurface = keyPress[ord(kpUp)]
+          of 1073741905:
+            currentSurface = keyPress[ord(kpDown)]
+          of 1073741904:
+            currentSurface = keyPress[ord(kpLeft)]
+          of 1073741903:
+            currentSurface = keyPress[ord(kpRight)]
           else: discard
         else:
-          blitSurface(keyPress, nil, screenSurface, nil)
+          blitSurface(currentSurface, nil, screenSurface, nil)
           discard updateSurface(win)
 
 discard close()
