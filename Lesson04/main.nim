@@ -1,29 +1,17 @@
 import sdl2
 
+type
+  keyPressEnum = enum
+    kpDefault, kpUp, kpDown, kpLeft, kpRight, kpTotal
+
 var
   win: WindowPtr
   ren: RendererPtr
   tex: TexturePtr
   screenSurface: SurfacePtr
-  #keyPress: SurfacePtr
   currentSurface: SurfacePtr
-
-#type
-#  KeyPressSurfaces {.pure.} = enum
-#    keyPressDefault ="", keyPressUp = "", keyPressDown = "", keyPressLeft = "", keyPressRight = "", keyPresTotal = ""
-#var
-#  keyPressDefault: SurfacePtr
-#  keyPressUp: SurfacePtr
-#  keyPressDown: SurfacePtr
-#  keyPressLeft: SurfacePtr
-#  keyPressRight: SurfacePtr
-#  keyPresTotal: SurfacePtr
-
-type
-  keyPressEnum = enum
-    kpDefault, kpUp, kpDown, kpLeft, kpRight, kpTotal
-var
   keyPress = newSeq[SurfacePtr](ord(kpTotal))
+
 
 proc initialization(): bool =
   var success: bool = true
