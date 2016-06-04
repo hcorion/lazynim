@@ -5,7 +5,11 @@ A port of [Lazy Foo's C++ SDL2](http://lazyfoo.net/tutorials/SDL/) tutorial to N
 We've currently ported the following lessons:
 - [x] Lesson02
 - [x] Lesson03
-- [ ] Lesson04
+- [x] Lesson04
+- [x] Lesson05
+- [x] Lesson06
+- [x] Lesson07
+- [ ] Lesson08
 
 ##TODO
 - Provide linux and Mac OSX support
