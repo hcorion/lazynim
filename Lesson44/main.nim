@@ -1,5 +1,8 @@
 import sdl2, sdl2.image
 
+proc memcpy(destination: ptr void, source: pointer, num: int) {.importc: "memcpy", varargs,
+                                  header: "<stdio.h>".}
+
 var
   win: WindowPtr
   #surface: SurfacePtr
@@ -17,7 +20,7 @@ type
     texture: TexturePtr
     width, height: int
     pitch: cint
-    pixels: ptr pointer
+    pixels: ptr void
 
 
 var dot: Dot
@@ -75,20 +78,38 @@ proc loadFromFile(path: string): bool =
         echo ("Unable to create blank texture! SDL Error:", getError())
       else:
         setTextureBlendMode( newTexture, BlendMode_Blend)
-        lockTexture(newTexture, addr(formattedSurface.clip_rect), lTexture.pixels, addr(lTexture.pitch))
 
+        #lock texture for manipulation
+        lockTexture(newTexture, addr(formattedSurface.clip_rect), cast[ptr pointer](lTexture.pixels), addr(lTexture.pitch))
 
-        ##################################################################################################
-        #ENDED RIGHT here
-        ##################################################################################################
+        memcpy(lTexture.pixels, formattedSurface.pixels, formattedSurface.pitch * formattedSurface.h)
 
+        lTexture.width = formattedSurface.w
+        lTexture.height = formattedSurface.h
 
+        var newpixels: ptr uint32 = cast[ptr uint32](lTexture.pixels)
+        var pixelCount: int = (int)(lTexture.pitch / 4) * lTexture.height
 
+        var colorKey: uint32 = mapRGB(formattedSurface.format, 0, 0xFF, 0xFF)
+        var transparent: uint32 = mapRGBA(formattedSurface.format, 0x00, 0xFF, 0xFF, 0x00)
 
+        for i in 0..pixelCount:
+          if newpixels == addr(colorKey):
+            newpixels = addr(transparent)
+        unlockTexture(newTexture)
+        lTexture.pixels = nil
+      freeSurface(formattedSurface)
+    freeSurface(loadedSurface)
+  lTexture.texture = newTexture
+  return lTexture.texture != nil
 
 proc loadMedia(): bool =
   var success: bool = true
-#  if()
+  if loadFromFile("dot.bmp") == false:
+    echo("Failed to load dot texture!")
+    success = false
+
+  success = true
 
 
 proc close(): bool =
@@ -103,6 +124,7 @@ proc close(): bool =
 if initialization() == false:
   echo "Failed to initialize!"
 else :
+  discard(loadMedia())
   var quit: bool = false
   var event = sdl2.defaultEvent
   while (quit == false):
